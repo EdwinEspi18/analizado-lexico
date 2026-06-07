@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Analizador Lexico JS</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <h1>Analizador Lexico - JS</h1>
+  <div>
+    <button id="btn-load-valid">Ejemplo valido</button>
+    <button id="btn-load-errors">Ejemplo con errores</button>
+    <button id="btn-analyze">Analizar</button>
+    <span id="status" class="status">Listo.</span>
+  </div>
+
+  <h2>Codigo fuente:</h2>
+  <textarea id="src" spellcheck="false"></textarea>
+
+  <h2>Tokens (<span id="tok-count">0</span>)</h2>
+  <table id="tokens">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Tipo</th>
+        <th>Lexema</th>
+        <th>Linea</th>
+        <th>Columna</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <p class="empty hidden" id="tokens-empty">Sin tokens.</p>
+
+  <h2>Errores (<span id="err-count">0</span>)</h2>
+  <table id="errors">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Mensaje</th>
+        <th>Lexema</th>
+        <th>Linea</th>
+        <th>Columna</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <p class="empty hidden" id="errors-empty">Sin errores.</p>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

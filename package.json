@@ -1,0 +1,19 @@
+{
+  "name": "analizador-lexico-javascript",
+  "version": "1.0.0",
+  "description": "Analizador Lexico JavaScript construido con FLEX, GUI web servida con Express",
+  "main": "server/index.js",
+  "scripts": {
+    "build": "make",
+    "clean": "make clean",
+    "start": "node server/index.js",
+    "dev": "node server/index.js"
+  },
+  "dependencies": {
+    "express": "4.19.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}
