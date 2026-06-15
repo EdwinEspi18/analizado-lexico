@@ -1,6 +1,7 @@
 const path = require("path");
 const { spawn } = require("child_process");
 const express = require("express");
+const { parse } = require("./parser");
 
 const ROOT = path.resolve(__dirname, "..");
 
@@ -67,6 +68,19 @@ app.post("/analyze", async (req, res) => {
     const raw = await runLexer(source);
     const result = parseLexerOutput(raw);
     res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post("/parse", async (req, res) => {
+  const source =
+    req.body && typeof req.body.source === "string" ? req.body.source : "";
+  try {
+    const raw = await runLexer(source);
+    const { tokens, errors: lexErrors } = parseLexerOutput(raw);
+    const { ast, errors: synErrors } = parse(tokens);
+    res.json({ tokens, ast, lexErrors, synErrors });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

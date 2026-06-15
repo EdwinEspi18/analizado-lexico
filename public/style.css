@@ -59,3 +59,25 @@ p.empty {
   color: #666;
   font-size: 13px;
 }
+
+p.result {
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 6px 10px;
+  margin-top: 10px;
+  border: 1px solid #999;
+  display: inline-block;
+}
+
+p.result.ok {
+  color: #0a0;
+  border-color: #0a0;
+  background: #eaffea;
+}
+
+p.result.bad {
+  color: #c00;
+  border-color: #c00;
+  background: #ffecec;
+}
