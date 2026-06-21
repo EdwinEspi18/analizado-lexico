@@ -68,6 +68,13 @@ const synResult = document.getElementById('syn-result');
 const synBody = document.querySelector('#syn-errors tbody');
 const synCount = document.getElementById('syn-count');
 const synEmpty = document.getElementById('syn-errors-empty');
+const semResult = document.getElementById('sem-result');
+const symBody = document.querySelector('#sym-table tbody');
+const symCount = document.getElementById('sym-count');
+const symEmpty = document.getElementById('sym-table-empty');
+const semBody = document.querySelector('#sem-errors tbody');
+const semCount = document.getElementById('sem-count');
+const semEmpty = document.getElementById('sem-errors-empty');
 
 src.value = EXAMPLE_VALID;
 
@@ -79,6 +86,7 @@ document.getElementById('btn-load-errors').onclick = function () {
 };
 document.getElementById('btn-analyze').onclick = analyze;
 document.getElementById('btn-parse').onclick = parseSyntax;
+document.getElementById('btn-semantic').onclick = parseSemantic;
 
 function renderRows(tbody, items, makeRow) {
   while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
@@ -146,7 +154,6 @@ function parseSyntax() {
       const lexErrors = data.lexErrors || [];
       const synErrors = data.synErrors || [];
 
-      // Tablas lexicas (tokens + errores lexicos)
       renderRows(tokensBody, tokens, function (t, i) {
         return [i, t.type, t.lexeme, t.line, t.column];
       });
@@ -171,6 +178,77 @@ function parseSyntax() {
       });
       synCount.textContent = synErrors.length;
       synEmpty.classList.toggle('hidden', synErrors.length > 0);
+
+      status.textContent = '';
+    })
+    .catch(function (e) {
+      status.textContent = 'Error: ' + e.message;
+    });
+}
+
+function parseSemantic() {
+  const source = src.value;
+  status.textContent = 'Analizando semanticamente...';
+
+  fetch('/semantic', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ source: source })
+  })
+    .then(function (res) {
+      return res.json();
+    })
+    .then(function (data) {
+      const tokens = data.tokens || [];
+      const lexErrors = data.lexErrors || [];
+      const synErrors = data.synErrors || [];
+      const simbolos = data.tablaSimbolos || [];
+      const semErrors = data.semErrors || [];
+
+      renderRows(tokensBody, tokens, function (t, i) {
+        return [i, t.type, t.lexeme, t.line, t.column];
+      });
+      renderRows(errorsBody, lexErrors, function (e, i) {
+        return [i, e.message, e.lexeme, e.line, e.column];
+      });
+      tokCount.textContent = tokens.length;
+      errCount.textContent = lexErrors.length;
+      tokensEmpty.classList.toggle('hidden', tokens.length > 0);
+      errorsEmpty.classList.toggle('hidden', lexErrors.length > 0);
+
+      if (synErrors.length === 0) {
+        synResult.textContent = 'Sintaxis valida.';
+        synResult.className = 'result ok';
+      } else {
+        synResult.textContent = 'Sintaxis invalida: ' + synErrors.length + ' error(es).';
+        synResult.className = 'result bad';
+      }
+      renderRows(synBody, synErrors, function (e, i) {
+        return [i, e.message, e.lexeme, e.line, e.column];
+      });
+      synCount.textContent = synErrors.length;
+      synEmpty.classList.toggle('hidden', synErrors.length > 0);
+
+      var totalErrors = synErrors.length + semErrors.length;
+      if (totalErrors === 0) {
+        semResult.textContent = 'Semantica valida.';
+        semResult.className = 'result ok';
+      } else {
+        semResult.textContent = 'Semantica invalida: ' + semErrors.length + ' error(es) semantico(s).';
+        semResult.className = 'result bad';
+      }
+
+      renderRows(symBody, simbolos, function (s, i) {
+        return [i, s.nombre, s.kind, s.scope, s.linea, s.columna];
+      });
+      symCount.textContent = simbolos.length;
+      symEmpty.classList.toggle('hidden', simbolos.length > 0);
+
+      renderRows(semBody, semErrors, function (e, i) {
+        return [i, e.mensaje, e.lexema, e.linea, e.columna];
+      });
+      semCount.textContent = semErrors.length;
+      semEmpty.classList.toggle('hidden', semErrors.length > 0);
 
       status.textContent = '';
     })
