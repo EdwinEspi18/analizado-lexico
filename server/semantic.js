@@ -66,7 +66,7 @@ function analyze(ast) {
         addError(`Variable ya declarada: '${nombre}'`, nombre, linea, columna);
         return;
       }
-      const info = { nombre, kind, scope: target.tipo, linea, columna };
+      const info = { nombre, kind, scope: target.tipo, linea, columna, usado: false };
       target.simbolos.set(nombre, info);
       tablaSimbolos.push(info);
     } else {
@@ -75,9 +75,41 @@ function analyze(ast) {
         addError(`Variable ya declarada: '${nombre}'`, nombre, linea, columna);
         return;
       }
-      const info = { nombre, kind, scope: scope.tipo, linea, columna };
+      const info = { nombre, kind, scope: scope.tipo, linea, columna, usado: false };
       scope.simbolos.set(nombre, info);
       tablaSimbolos.push(info);
+    }
+  }
+
+  function inferirTipo(node, scope) {
+    if (!node) return 'unknown';
+    switch (node.tipo) {
+      case 'Numero':   return 'number';
+      case 'Cadena':   return 'string';
+      case 'Template': return 'string';
+      case 'Booleano': return 'boolean';
+      case 'Null':     return 'null';
+      case 'Undefined':return 'undefined';
+      case 'Identificador': {
+        const sym = scope.buscar(node.valor);
+        return (sym && sym.tipoDato) ? sym.tipoDato : 'unknown';
+      }
+      case 'Agrupacion':
+        return node.hijos[0] ? inferirTipo(node.hijos[0], scope) : 'unknown';
+      case 'OperacionBinaria': {
+        const t1 = inferirTipo(node.hijos[0], scope);
+        const t2 = inferirTipo(node.hijos[1], scope);
+        if (['+', '-', '*', '/', '%', '**'].includes(node.valor)) {
+          if (node.valor === '+') {
+            if (t1 === 'string' || t2 === 'string') return 'string';
+            if (t1 === 'number' && t2 === 'number') return 'number';
+          } else {
+            if (t1 === 'number' && t2 === 'number') return 'number';
+          }
+        }
+        return 'unknown';
+      }
+      default: return 'unknown';
     }
   }
 
@@ -95,7 +127,11 @@ function analyze(ast) {
         for (const decl of node.hijos) {
           if (decl.tipo === 'Declarador') {
             definir(scope, decl.valor, kind, decl.line, decl.column);
-            if (decl.hijos.length > 0) visit(decl.hijos[0], scope, ctx);
+            if (decl.hijos.length > 0) {
+              visit(decl.hijos[0], scope, ctx);
+              const sym = scope.buscar(decl.valor);
+              if (sym) sym.tipoDato = inferirTipo(decl.hijos[0], scope);
+            }
           }
         }
         break;
@@ -232,8 +268,11 @@ function analyze(ast) {
       }
 
       case 'Identificador': {
-        if (!scope.buscar(node.valor)) {
+        const sym = scope.buscar(node.valor);
+        if (!sym) {
           addError(`Variable no declarada: '${node.valor}'`, node.valor, node.line, node.column);
+        } else {
+          sym.usado = true;
         }
         break;
       }
@@ -249,10 +288,36 @@ function analyze(ast) {
           } else if (sym.kind === 'const') {
             addError(`Asignación a constante: '${lhs.valor}'`, lhs.valor, lhs.line, lhs.column);
           }
+          if (sym) sym.usado = true;
         } else if (lhs) {
           visit(lhs, scope, ctx);
         }
         if (node.hijos[1]) visit(node.hijos[1], scope, ctx);
+        break;
+      }
+
+      case 'OperacionBinaria': {
+        for (const h of node.hijos) visit(h, scope, ctx);
+        const opsArit = new Set(['+', '-', '*', '/', '%', '**']);
+        if (opsArit.has(node.valor)) {
+          const t1 = inferirTipo(node.hijos[0], scope);
+          const t2 = inferirTipo(node.hijos[1], scope);
+          if (node.valor === '+') {
+            if ((t1 === 'number' && t2 === 'string') || (t1 === 'string' && t2 === 'number')) {
+              addError(
+                `Mezcla de tipos en '+': '${t1}' y '${t2}'`,
+                node.valor, node.line, node.column
+              );
+            }
+          } else {
+            if (t1 === 'string' || t2 === 'string') {
+              addError(
+                `Operación aritmética '${node.valor}' con tipo string`,
+                node.valor, node.line, node.column
+              );
+            }
+          }
+        }
         break;
       }
 
@@ -284,6 +349,17 @@ function analyze(ast) {
 
   if (ast) {
     visit(ast, globalScope, { enFuncion: false, enLoop: false, enSwitch: false });
+  }
+
+  for (const sym of tablaSimbolos) {
+    if (!sym.usado) {
+      errores.push({
+        mensaje: `Variable declarada pero no utilizada: '${sym.nombre}'`,
+        lexema: sym.nombre,
+        linea: sym.linea,
+        columna: sym.columna,
+      });
+    }
   }
 
   return { tablaSimbolos, errores };

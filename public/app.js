@@ -87,6 +87,7 @@ document.getElementById('btn-load-errors').onclick = function () {
 document.getElementById('btn-analyze').onclick = analyze;
 document.getElementById('btn-parse').onclick = parseSyntax;
 document.getElementById('btn-semantic').onclick = parseSemantic;
+document.getElementById('btn-translate').onclick = translateCode;
 
 function renderRows(tbody, items, makeRow) {
   while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
@@ -100,6 +101,33 @@ function renderRows(tbody, items, makeRow) {
     }
     tbody.appendChild(tr);
   }
+}
+
+function translateCode() {
+  var source = src.value;
+  var target = document.getElementById('target-lang').value;
+  var transStatus = document.getElementById('trans-status');
+  var output = document.getElementById('translated-code');
+  transStatus.textContent = 'Traduciendo...';
+  fetch('/translate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ source: source, target: target })
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.error) {
+        output.textContent = 'Error: ' + data.error;
+      } else if (data.errors && data.errors.length > 0) {
+        output.textContent = 'Errores sintacticos:\n' + data.errors.map(function (e) {
+          return '  Linea ' + e.line + ':' + e.column + ' — ' + e.message;
+        }).join('\n');
+      } else {
+        output.textContent = data.code || '(sin codigo generado)';
+      }
+      transStatus.textContent = '';
+    })
+    .catch(function (e) { transStatus.textContent = 'Error: ' + e.message; });
 }
 
 function analyze() {

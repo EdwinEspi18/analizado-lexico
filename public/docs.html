@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Documentacion del Lenguaje</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #fff; color: #111; }
+    .sidebar { position: fixed; top: 0; left: 0; width: 220px; height: 100vh; overflow-y: auto; background: #1e1e2e; color: #cdd6f4; padding: 16px 0; box-sizing: border-box; }
+    .sidebar h2 { font-size: 13px; color: #89b4fa; text-transform: uppercase; letter-spacing: 1px; margin: 20px 16px 6px; }
+    .sidebar a { display: block; padding: 5px 16px; font-size: 13px; color: #cdd6f4; text-decoration: none; }
+    .sidebar a:hover { background: #313244; color: #cba6f7; }
+    .sidebar .brand { padding: 16px; font-size: 15px; font-weight: bold; color: #89b4fa; border-bottom: 1px solid #313244; }
+    .content { margin-left: 220px; padding: 32px 48px; max-width: 900px; }
+    h1 { font-size: 26px; border-bottom: 2px solid #89b4fa; padding-bottom: 8px; color: #1e1e2e; }
+    h2 { font-size: 20px; margin-top: 36px; color: #1e1e2e; border-left: 4px solid #89b4fa; padding-left: 10px; }
+    h3 { font-size: 16px; margin-top: 24px; color: #313244; }
+    p, li { font-size: 14px; line-height: 1.7; }
+    code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 13px; }
+    pre { background: #1e1e1e; color: #d4d4d4; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 13px; line-height: 1.5; }
+    pre code { background: none; padding: 0; color: inherit; }
+    table { border-collapse: collapse; width: 100%; margin-top: 12px; font-size: 13px; }
+    th { background: #1e1e2e; color: #cdd6f4; padding: 8px 12px; text-align: left; }
+    td { border: 1px solid #ddd; padding: 7px 12px; }
+    tr:nth-child(even) td { background: #f8f8f8; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-right: 4px; }
+    .badge-kw  { background: #cba6f7; color: #1e1e2e; }
+    .badge-op  { background: #89b4fa; color: #1e1e2e; }
+    .badge-lit { background: #a6e3a1; color: #1e1e2e; }
+    .note { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 10px 14px; margin: 12px 0; border-radius: 0 4px 4px 0; font-size: 13px; }
+    .back { font-size: 13px; color: #89b4fa; text-decoration: none; }
+    .back:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="brand">JS-Analyzer Lang</div>
+  <h2>Contenido</h2>
+  <a href="#intro">Introduccion</a>
+  <a href="#tokens">Tokens y Literales</a>
+  <a href="#variables">Variables</a>
+  <a href="#tipos">Tipos de Datos</a>
+  <a href="#operadores">Operadores</a>
+  <a href="#control">Flujo de Control</a>
+  <a href="#funciones">Funciones</a>
+  <a href="#clases">Clases</a>
+  <a href="#errores">Manejo de Errores</a>
+  <a href="#modulos">Modulos</a>
+  <a href="#ejemplos">Ejemplos</a>
+  <a href="#traduccion">Traduccion</a>
+</nav>
+
+<div class="content">
+  <p><a class="back" href="index.html">&larr; Volver al Analizador</a></p>
+  <h1>Documentacion del Lenguaje</h1>
+  <p>Este documento describe el lenguaje analizado por el compilador: un subconjunto de <strong>ECMAScript 2020+</strong> (JavaScript moderno) con soporte completo de lexico, sintaxis y semantica.</p>
+
+  <!-- ─── INTRODUCCION ─────────────────────────────────────────────────────── -->
+  <h2 id="intro">Introduccion</h2>
+  <p>El analizador procesa tres fases de compilacion:</p>
+  <ul>
+    <li><strong>Lexico</strong> — tokeniza el codigo fuente usando un lexer FLEX (C compilado).</li>
+    <li><strong>Sintactico</strong> — construye un AST (arbol sintactico) con un parser de descenso recursivo.</li>
+    <li><strong>Semantico</strong> — valida alcances, tipos, variables no declaradas, y genera una tabla de simbolos.</li>
+    <li><strong>Traduccion</strong> — convierte el AST al lenguaje destino (Python o Java).</li>
+  </ul>
+
+  <!-- ─── TOKENS ───────────────────────────────────────────────────────────── -->
+  <h2 id="tokens">Tokens y Literales</h2>
+
+  <h3>Palabras Reservadas (45+)</h3>
+  <p>
+    <span class="badge badge-kw">var</span><span class="badge badge-kw">let</span><span class="badge badge-kw">const</span>
+    <span class="badge badge-kw">function</span><span class="badge badge-kw">class</span><span class="badge badge-kw">extends</span>
+    <span class="badge badge-kw">new</span><span class="badge badge-kw">this</span><span class="badge badge-kw">super</span>
+    <span class="badge badge-kw">static</span><span class="badge badge-kw">return</span><span class="badge badge-kw">if</span>
+    <span class="badge badge-kw">else</span><span class="badge badge-kw">for</span><span class="badge badge-kw">while</span>
+    <span class="badge badge-kw">do</span><span class="badge badge-kw">switch</span><span class="badge badge-kw">case</span>
+    <span class="badge badge-kw">default</span><span class="badge badge-kw">break</span><span class="badge badge-kw">continue</span>
+    <span class="badge badge-kw">try</span><span class="badge badge-kw">catch</span><span class="badge badge-kw">finally</span>
+    <span class="badge badge-kw">throw</span><span class="badge badge-kw">typeof</span><span class="badge badge-kw">instanceof</span>
+    <span class="badge badge-kw">in</span><span class="badge badge-kw">of</span><span class="badge badge-kw">null</span>
+    <span class="badge badge-kw">true</span><span class="badge badge-kw">false</span><span class="badge badge-kw">undefined</span>
+    <span class="badge badge-kw">import</span><span class="badge badge-kw">export</span><span class="badge badge-kw">from</span>
+    <span class="badge badge-kw">as</span><span class="badge badge-kw">async</span><span class="badge badge-kw">await</span>
+    <span class="badge badge-kw">yield</span><span class="badge badge-kw">delete</span><span class="badge badge-kw">void</span>
+  </p>
+
+  <h3>Literales Numericos</h3>
+  <table>
+    <tr><th>Tipo</th><th>Ejemplo</th><th>Token</th></tr>
+    <tr><td>Entero decimal</td><td><code>42</code></td><td>ENTERO</td></tr>
+    <tr><td>Real (decimal)</td><td><code>3.14</code></td><td>REAL</td></tr>
+    <tr><td>Exponencial</td><td><code>1.5e10</code></td><td>EXP</td></tr>
+    <tr><td>Hexadecimal</td><td><code>0xFF</code></td><td>HEX</td></tr>
+    <tr><td>Binario</td><td><code>0b1010</code></td><td>BIN</td></tr>
+    <tr><td>Octal</td><td><code>0o17</code></td><td>OCT</td></tr>
+  </table>
+
+  <h3>Cadenas de Texto</h3>
+  <table>
+    <tr><th>Tipo</th><th>Ejemplo</th><th>Token</th></tr>
+    <tr><td>Comillas dobles</td><td><code>"hola mundo"</code></td><td>CADENA</td></tr>
+    <tr><td>Comillas simples</td><td><code>'hola mundo'</code></td><td>CADENA</td></tr>
+    <tr><td>Template literal</td><td><code>`hola ${nombre}`</code></td><td>TEMPLATE_STRING</td></tr>
+  </table>
+  <p>Las cadenas soportan secuencias de escape: <code>\n</code>, <code>\t</code>, <code>\\</code>, <code>\"</code>, <code>\'</code>, <code>\r</code>.</p>
+
+  <h3>Comentarios</h3>
+  <pre><code>// comentario de linea
+/* comentario
+   de bloque */</code></pre>
+
+  <!-- ─── VARIABLES ────────────────────────────────────────────────────────── -->
+  <h2 id="variables">Declaraciones de Variables</h2>
+  <table>
+    <tr><th>Keyword</th><th>Alcance</th><th>Hoisting</th><th>Re-declaracion</th><th>Re-asignacion</th></tr>
+    <tr><td><code>var</code></td><td>Funcion / global</td><td>Si (con valor <code>undefined</code>)</td><td>Permitida</td><td>Permitida</td></tr>
+    <tr><td><code>let</code></td><td>Bloque</td><td>No (temporal dead zone)</td><td>No permitida</td><td>Permitida</td></tr>
+    <tr><td><code>const</code></td><td>Bloque</td><td>No</td><td>No permitida</td><td>No permitida</td></tr>
+  </table>
+  <pre><code>var x = 10;
+let contador = 0;
+const PI = 3.14159;
+
+// multiples declaradores
+let a = 1, b = 2, c = 3;</code></pre>
+
+  <!-- ─── TIPOS ────────────────────────────────────────────────────────────── -->
+  <h2 id="tipos">Tipos de Datos</h2>
+  <table>
+    <tr><th>Tipo</th><th>Ejemplos</th><th>Notas</th></tr>
+    <tr><td><code>number</code></td><td><code>42</code>, <code>3.14</code>, <code>0xFF</code></td><td>Enteros y flotantes</td></tr>
+    <tr><td><code>string</code></td><td><code>"hola"</code>, <code>`mundo`</code></td><td>Template literals con <code>${expr}</code></td></tr>
+    <tr><td><code>boolean</code></td><td><code>true</code>, <code>false</code></td><td></td></tr>
+    <tr><td><code>null</code></td><td><code>null</code></td><td>Ausencia intencional de valor</td></tr>
+    <tr><td><code>undefined</code></td><td><code>undefined</code></td><td>Variable no inicializada</td></tr>
+    <tr><td>object</td><td><code>{ clave: valor }</code></td><td>Pares clave-valor</td></tr>
+    <tr><td>array</td><td><code>[1, 2, 3]</code></td><td>Coleccion ordenada</td></tr>
+    <tr><td>function</td><td><code>function f(){}</code></td><td>Ciudadano de primera clase</td></tr>
+  </table>
+  <pre><code>// object literal
+const persona = { nombre: "Ana", edad: 25, activo: true };
+
+// array literal con spread
+const numeros = [1, 2, 3, ...[4, 5]];
+
+// template literal
+const mensaje = `Hola, ${persona.nombre}!`;</code></pre>
+
+  <!-- ─── OPERADORES ───────────────────────────────────────────────────────── -->
+  <h2 id="operadores">Operadores</h2>
+  <h3>Tabla de Precedencia (menor a mayor)</h3>
+  <table>
+    <tr><th>Nivel</th><th>Operadores</th><th>Asociatividad</th></tr>
+    <tr><td>Asignacion</td><td><code>= += -= *= /= %= **= &&= ||= ??= &lt;&lt;= &gt;&gt;= &gt;&gt;&gt;= &= |= ^=</code></td><td>Derecha</td></tr>
+    <tr><td>Ternario</td><td><code>? :</code></td><td>Derecha</td></tr>
+    <tr><td>Logico OR / Nullish</td><td><code>|| ??</code></td><td>Izquierda</td></tr>
+    <tr><td>Logico AND</td><td><code>&&</code></td><td>Izquierda</td></tr>
+    <tr><td>OR de bits</td><td><code>|</code></td><td>Izquierda</td></tr>
+    <tr><td>XOR de bits</td><td><code>^</code></td><td>Izquierda</td></tr>
+    <tr><td>AND de bits</td><td><code>&</code></td><td>Izquierda</td></tr>
+    <tr><td>Igualdad</td><td><code>== != === !==</code></td><td>Izquierda</td></tr>
+    <tr><td>Relacional</td><td><code>&lt; &gt; &lt;= &gt;= in instanceof</code></td><td>Izquierda</td></tr>
+    <tr><td>Desplazamiento</td><td><code>&lt;&lt; &gt;&gt; &gt;&gt;&gt;</code></td><td>Izquierda</td></tr>
+    <tr><td>Aditivo</td><td><code>+ -</code></td><td>Izquierda</td></tr>
+    <tr><td>Multiplicativo</td><td><code>* / %</code></td><td>Izquierda</td></tr>
+    <tr><td>Exponenciacion</td><td><code>**</code></td><td>Derecha</td></tr>
+    <tr><td>Unario</td><td><code>! ~ - + ++ -- typeof void delete await yield</code></td><td>Derecha</td></tr>
+    <tr><td>Postfijo</td><td><code>x++ x-- . ?. [] ()</code></td><td>Izquierda</td></tr>
+    <tr><td>Nuevo</td><td><code>new</code></td><td>—</td></tr>
+  </table>
+  <h3>Operadores Especiales</h3>
+  <table>
+    <tr><th>Operador</th><th>Descripcion</th><th>Ejemplo</th></tr>
+    <tr><td><code>===</code></td><td>Igualdad estricta (tipo + valor)</td><td><code>1 === "1"</code> → false</td></tr>
+    <tr><td><code>??</code></td><td>Nullish coalescing</td><td><code>null ?? "default"</code> → "default"</td></tr>
+    <tr><td><code>?.</code></td><td>Optional chaining</td><td><code>obj?.propiedad</code></td></tr>
+    <tr><td><code>...</code></td><td>Spread / Rest</td><td><code>[...arr]</code>, <code>function(...args)</code></td></tr>
+    <tr><td><code>=&gt;</code></td><td>Arrow function</td><td><code>(x) =&gt; x * 2</code></td></tr>
+  </table>
+
+  <!-- ─── CONTROL ──────────────────────────────────────────────────────────── -->
+  <h2 id="control">Flujo de Control</h2>
+
+  <h3>if / else</h3>
+  <pre><code>if (condicion) {
+    // bloque verdadero
+} else if (otraCondicion) {
+    // ...
+} else {
+    // bloque falso
+}</code></pre>
+
+  <h3>for (3 formas)</h3>
+  <pre><code>// Clasico
+for (let i = 0; i &lt; 10; i++) { ... }
+
+// for-of (valores de iterable)
+for (const item of array) { ... }
+
+// for-in (claves de objeto)
+for (const clave in objeto) { ... }</code></pre>
+
+  <h3>while / do-while</h3>
+  <pre><code>while (condicion) { ... }
+
+do {
+    // ejecuta al menos una vez
+} while (condicion);</code></pre>
+
+  <h3>switch</h3>
+  <pre><code>switch (valor) {
+    case 1:
+        console.log("uno");
+        break;
+    case 2:
+        console.log("dos");
+        break;
+    default:
+        console.log("otro");
+}</code></pre>
+
+  <h3>break / continue</h3>
+  <pre><code>for (let i = 0; i &lt; 10; i++) {
+    if (i === 3) continue;  // salta esta iteracion
+    if (i === 7) break;     // sale del bucle
+}</code></pre>
+
+  <!-- ─── FUNCIONES ────────────────────────────────────────────────────────── -->
+  <h2 id="funciones">Funciones</h2>
+
+  <h3>Declaracion de funcion</h3>
+  <pre><code>function suma(a, b) {
+    return a + b;
+}</code></pre>
+
+  <h3>Expresion de funcion</h3>
+  <pre><code>const multiplicar = function(a, b) {
+    return a * b;
+};</code></pre>
+
+  <h3>Arrow function</h3>
+  <pre><code>// expresion concisa (sin return explicito)
+const doble = x => x * 2;
+
+// con multiples parametros
+const suma = (a, b) => a + b;
+
+// con cuerpo de bloque
+const factorial = (n) => {
+    if (n &lt;= 1) return 1;
+    return n * factorial(n - 1);
+};</code></pre>
+
+  <h3>Parametros especiales</h3>
+  <pre><code>// valor por defecto
+function saludar(nombre = "mundo") {
+    return `Hola, ${nombre}!`;
+}
+
+// rest parameter (variadic)
+function sumar(...numeros) {
+    return numeros.reduce((a, b) => a + b, 0);
+}</code></pre>
+
+  <div class="note">Las funciones son ciudadanos de primera clase: pueden asignarse a variables, pasarse como argumentos y devolverse como valores.</div>
+
+  <!-- ─── CLASES ───────────────────────────────────────────────────────────── -->
+  <h2 id="clases">Clases</h2>
+  <pre><code>class Animal {
+    constructor(nombre, edad) {
+        this.nombre = nombre;
+        this.edad   = edad;
+    }
+
+    saludar() {
+        return `Hola, soy ${this.nombre}`;
+    }
+
+    static crear(nombre) {
+        return new Animal(nombre, 0);
+    }
+}
+
+class Perro extends Animal {
+    constructor(nombre, raza) {
+        super(nombre, 0);
+        this.raza = raza;
+    }
+
+    saludar() {
+        return `${super.saludar()}, soy un ${this.raza}`;
+    }
+}
+
+const rex = new Perro("Rex", "Labrador");
+console.log(rex.saludar());</code></pre>
+
+  <h3>Miembros de clase</h3>
+  <table>
+    <tr><th>Miembro</th><th>Sintaxis</th><th>Descripcion</th></tr>
+    <tr><td>Constructor</td><td><code>constructor(params) {}</code></td><td>Inicializa la instancia</td></tr>
+    <tr><td>Metodo de instancia</td><td><code>nombre(params) {}</code></td><td>Accesible en instancias</td></tr>
+    <tr><td>Metodo estatico</td><td><code>static nombre(params) {}</code></td><td>Accesible en la clase</td></tr>
+    <tr><td>Campo de instancia</td><td><code>campo = valor;</code></td><td>Propiedad de la instancia</td></tr>
+    <tr><td>Campo estatico</td><td><code>static campo = valor;</code></td><td>Compartido por la clase</td></tr>
+    <tr><td>Herencia</td><td><code>class Hijo extends Padre {}</code></td><td>Extiende otra clase</td></tr>
+  </table>
+
+  <!-- ─── ERRORES ──────────────────────────────────────────────────────────── -->
+  <h2 id="errores">Manejo de Errores</h2>
+  <pre><code>try {
+    const resultado = operacionRiesgosa();
+    if (!resultado) throw new Error("Resultado nulo");
+} catch (error) {
+    console.log("Error capturado:", error.message);
+} finally {
+    console.log("Siempre se ejecuta");
+}</code></pre>
+  <div class="note"><code>finally</code> es opcional. <code>catch</code> tambien es opcional si hay <code>finally</code>.</div>
+
+  <!-- ─── MODULOS ──────────────────────────────────────────────────────────── -->
+  <h2 id="modulos">Modulos (import / export)</h2>
+  <p>Los tokens <code>import</code>, <code>export</code>, <code>from</code>, <code>as</code>, <code>async</code>, <code>await</code>, <code>yield</code> son reconocidos por el lexer. La semantica completa de modulos no esta implementada en la fase de parsing, pero los tokens se producen correctamente.</p>
+  <pre><code>import { funcion } from './modulo';
+export const PI = 3.14;
+export default function principal() { ... }</code></pre>
+
+  <!-- ─── EJEMPLOS ─────────────────────────────────────────────────────────── -->
+  <h2 id="ejemplos">Ejemplos</h2>
+
+  <h3>Programa completo</h3>
+  <pre><code>class Pila {
+    constructor() {
+        this.elementos = [];
+    }
+
+    apilar(item) {
+        this.elementos.push(item);
+    }
+
+    desapilar() {
+        if (this.elementos.length === 0) throw new Error("Pila vacia");
+        return this.elementos.pop();
+    }
+
+    get tamano() {
+        return this.elementos.length;
+    }
+}
+
+const pila = new Pila();
+pila.apilar(1);
+pila.apilar(2);
+pila.apilar(3);
+
+for (const val of [10, 20, 30]) {
+    pila.apilar(val);
+}
+
+while (pila.tamano > 0) {
+    console.log(pila.desapilar());
+}</code></pre>
+
+  <!-- ─── TRADUCCION ───────────────────────────────────────────────────────── -->
+  <h2 id="traduccion">Traduccion de Codigo</h2>
+  <p>El traductor convierte el AST generado por el parser a otro lenguaje de programacion. Reglas principales:</p>
+
+  <h3>JavaScript &rarr; Python</h3>
+  <table>
+    <tr><th>JavaScript</th><th>Python</th></tr>
+    <tr><td><code>var/let x = v</code></td><td><code>x = v</code></td></tr>
+    <tr><td><code>const x = v</code></td><td><code>x = v  # const</code></td></tr>
+    <tr><td><code>function f(a, b) {}</code></td><td><code>def f(a, b):</code></td></tr>
+    <tr><td><code>(x) =&gt; expr</code></td><td><code>lambda x: expr</code></td></tr>
+    <tr><td><code>class Foo extends Bar {}</code></td><td><code>class Foo(Bar):</code></td></tr>
+    <tr><td><code>constructor(x)</code></td><td><code>def __init__(self, x):</code></td></tr>
+    <tr><td><code>this.x</code></td><td><code>self.x</code></td></tr>
+    <tr><td><code>new Foo(x)</code></td><td><code>Foo(x)</code></td></tr>
+    <tr><td><code>null / undefined</code></td><td><code>None</code></td></tr>
+    <tr><td><code>true / false</code></td><td><code>True / False</code></td></tr>
+    <tr><td><code>console.log(x)</code></td><td><code>print(x)</code></td></tr>
+    <tr><td><code>`hello ${x}`</code></td><td><code>f"hello {x}"</code></td></tr>
+    <tr><td><code>=== / !==</code></td><td><code>== / !=</code></td></tr>
+    <tr><td><code>&amp;&amp; / || / !</code></td><td><code>and / or / not</code></td></tr>
+    <tr><td><code>typeof x</code></td><td><code>type(x).__name__</code></td></tr>
+    <tr><td><code>x instanceof T</code></td><td><code>isinstance(x, T)</code></td></tr>
+    <tr><td><code>for (let x of arr)</code></td><td><code>for x in arr:</code></td></tr>
+    <tr><td><code>throw x</code></td><td><code>raise Exception(x)</code></td></tr>
+    <tr><td><code>try/catch(e)/finally</code></td><td><code>try:/except Exception as e:/finally:</code></td></tr>
+  </table>
+
+  <h3>JavaScript &rarr; Java</h3>
+  <table>
+    <tr><th>JavaScript</th><th>Java</th></tr>
+    <tr><td><code>var/let/const x = v</code></td><td><code>var x = v;</code></td></tr>
+    <tr><td><code>function f(a, b) {}</code></td><td><code>public static Object f(Object a, Object b) {}</code></td></tr>
+    <tr><td><code>(x) =&gt; expr</code></td><td><code>(x) -&gt; expr</code></td></tr>
+    <tr><td><code>class Foo extends Bar {}</code></td><td><code>public class Foo extends Bar {}</code></td></tr>
+    <tr><td><code>constructor(x)</code></td><td><code>public ClassName(Object x) {}</code></td></tr>
+    <tr><td><code>console.log(x)</code></td><td><code>System.out.println(x)</code></td></tr>
+    <tr><td><code>`hello ${x}`</code></td><td><code>"hello " + x</code></td></tr>
+    <tr><td><code>null / undefined</code></td><td><code>null</code></td></tr>
+    <tr><td><code>for (let x of arr)</code></td><td><code>for (var x : arr)</code></td></tr>
+    <tr><td><code>throw x</code></td><td><code>throw new RuntimeException(String.valueOf(x))</code></td></tr>
+    <tr><td><code>[1, 2, 3]</code></td><td><code>java.util.List.of(1, 2, 3)</code></td></tr>
+    <tr><td><code>{ a: 1 }</code></td><td><code>java.util.Map.of("a", 1)</code></td></tr>
+  </table>
+  <div class="note">Las declaraciones al nivel global que no sean clases ni funciones se envuelven automaticamente en <code>public class Main { public static void main(String[] args) { ... } }</code>.</div>
+
+  <br><br>
+  <p><a class="back" href="index.html">&larr; Volver al Analizador</a></p>
+</div>
+
+</body>
+</html>

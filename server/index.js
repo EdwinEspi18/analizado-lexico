@@ -3,6 +3,7 @@ const { spawn } = require("child_process");
 const express = require("express");
 const { parse } = require("./parser");
 const { analyze } = require("./semantic");
+const { translate } = require("./translator");
 
 const ROOT = path.resolve(__dirname, "..");
 
@@ -96,6 +97,27 @@ app.post("/semantic", async (req, res) => {
     const { ast, errors: synErrors } = parse(tokens);
     const { tablaSimbolos, errores: semErrors } = analyze(ast);
     res.json({ tokens, ast, lexErrors, synErrors, tablaSimbolos, semErrors });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post("/translate", async (req, res) => {
+  const source =
+    req.body && typeof req.body.source === "string" ? req.body.source : "";
+  const target = req.body && typeof req.body.target === "string" ? req.body.target : "";
+  if (!source || !target) {
+    return res.status(400).json({ error: "Falta source o target" });
+  }
+  try {
+    const raw = await runLexer(source);
+    const { tokens, errors: lexErrors } = parseLexerOutput(raw);
+    const { ast, errors: synErrors } = parse(tokens);
+    if (synErrors.length > 0) {
+      return res.json({ code: "", errors: synErrors });
+    }
+    const code = translate(ast, target);
+    res.json({ code, errors: [] });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

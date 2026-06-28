@@ -8,7 +8,7 @@
 </head>
 
 <body>
-  <h1>Analizador Lexico - JS</h1>
+  <h1>Analizador Lexico - JS &nbsp;<a href="docs.html" style="font-size:14px;font-weight:normal;">Documentacion del Lenguaje</a></h1>
   <div>
     <button id="btn-load-valid">Ejemplo valido</button>
     <button id="btn-load-errors">Ejemplo con errores</button>
@@ -102,6 +102,17 @@
     <tbody></tbody>
   </table>
   <p class="empty hidden" id="sem-errors-empty">Sin errores semanticos.</p>
+
+  <h2>Traduccion de Codigo</h2>
+  <div>
+    <select id="target-lang">
+      <option value="python">Python</option>
+      <option value="java">Java</option>
+    </select>
+    <button id="btn-translate">Traducir</button>
+    <span id="trans-status" class="status"></span>
+  </div>
+  <pre id="translated-code" class="code-output">Sin traduccion.</pre>
 
   <script src="app.js"></script>
 </body>

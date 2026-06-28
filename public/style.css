@@ -81,3 +81,22 @@ p.result.bad {
   border-color: #c00;
   background: #ffecec;
 }
+
+.code-output {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font-family: monospace;
+  font-size: 13px;
+  padding: 12px;
+  border-radius: 4px;
+  overflow-x: auto;
+  white-space: pre;
+  min-height: 80px;
+  margin-top: 8px;
+}
+
+select {
+  padding: 4px 8px;
+  font-size: 13px;
+  margin-right: 6px;
+}
